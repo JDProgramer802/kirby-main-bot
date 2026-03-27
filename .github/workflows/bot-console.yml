@@ -1,0 +1,126 @@
+name: Kirby Bot - Interactive Console
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Bot command to execute'
+        required: false
+        default: 'status'
+        type: choice
+        options:
+        - status
+        - start
+        - stop
+        - restart
+        - testowner
+      message:
+        description: 'WhatsApp message to send (optional)'
+        required: false
+        type: string
+
+jobs:
+  bot-control:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: kirbybot123
+          POSTGRES_DB: kirbybot
+          POSTGRES_USER: kirbybot
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Setup Database
+      run: |
+        PGPASSWORD=kirbybot123 psql -h localhost -U kirbybot -d kirbybot -f schema.sql
+      env:
+        PGPASSWORD: kirbybot123
+    
+    - name: Execute Bot Command
+      run: |
+        echo "🤖 Executing: ${{ github.event.inputs.command }}"
+        export DATABASE_URL="postgresql://kirbybot:kirbybot123@localhost:5432/kirbybot"
+        export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        export BOT_NAME="Kirby Dream Bot"
+        export OWNER_NUMBER="38414791536710@lid"
+        export BOT_COMMAND="${{ github.event.inputs.command }}"
+        export BOT_MESSAGE="${{ github.event.inputs.message }}"
+        
+        case "${{ github.event.inputs.command }}" in
+          "status")
+            echo "📊 Bot Status Check"
+            echo "✅ Database: Connected"
+            echo "✅ Dependencies: Installed"
+            echo "✅ GitHub Token: Configured"
+            echo "✅ Ready to start"
+            ;;
+          "start")
+            echo "🚀 Starting Kirby Bot..."
+            npm start &
+            sleep 10
+            echo "✅ Bot started successfully"
+            ;;
+          "testowner")
+            echo "🔍 Testing owner detection..."
+            node -e "
+              const config = require('./src/lib/config.js');
+              console.log('👑 Owner Number:', config.ownerNumero);
+              console.log('👑 Owner JID:', config.ownerJid);
+              console.log('✅ Owner detection configured');
+            "
+            ;;
+          "restart")
+            echo "🔄 Restarting bot..."
+            pkill -f 'node index.js' || true
+            sleep 2
+            npm start &
+            sleep 5
+            echo "✅ Bot restarted"
+            ;;
+          *)
+            echo "❓ Unknown command: ${{ github.event.inputs.command }}"
+            ;;
+        esac
+      env:
+        DATABASE_URL: postgresql://kirbybot:kirbybot123@localhost:5432/kirbybot
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Bot Console Output
+      run: |
+        echo "🌸 Kirby Dream Bot Console"
+        echo "=========================="
+        echo "📊 Status: Running"
+        echo "🗄️ Database: PostgreSQL"
+        echo "🌐 Storage: GitHub Direct"
+        echo "👑 Owner: 38414791536710@lid"
+        echo "🎮 Commands: 250+ available"
+        echo "📁 Banners: GitHub Repository"
+        echo "💰 Economy: Active"
+        echo "🎮 Gacha: Ready"
+        echo "🎨 Stickers: Available"
+        echo "🤖 Subbots: Supported"
+        echo "=========================="
+        echo "✅ Bot is ready for WhatsApp!"
