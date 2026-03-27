@@ -1,0 +1,25 @@
+version: "1"
+services:
+  web:
+    build: .
+    command: npm start
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - BOT_NAME=Kirby Dream Bot
+      - OWNER_NUMBER=38414791536710@lid
+    ports:
+      - "3000:3000"
+  
+  database:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=kirbybot
+      - POSTGRES_PASSWORD=kirbybot123
+      - POSTGRES_DB=kirbybot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
