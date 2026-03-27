@@ -5,7 +5,7 @@
 // @reaccion: 🌌
 
 import { downloadMediaMessage } from '@itsukichann/baileys';
-import { subirArchivoConFallback } from '../../src/lib/local-storage.js';
+import { subirArchivoConGitHub } from '../../src/lib/github-storage.js';
 import { query, setBotConfig } from '../../src/lib/database.js';
 
 export default async function(m, ctx) {
@@ -31,13 +31,13 @@ export default async function(m, ctx) {
   const msgType = quoted ? Object.keys(quoted)[0] : Object.keys(m.message || {})[0];
 
   if (!/(image|video)Message/.test(msgType)) {
-    return reply('⚠️ *¡Ay!* Tienes que responder a una imagen o video con el comando `.setbanner`. 🌸');
+    return reply('⚠️ *¡Ay!* Tienes que responder a una imagen o video con el comando `.setbanner`. ');
   }
 
   const jid = conn.user.id.split(':')[0] + '@s.whatsapp.net';
 
   try {
-    await reply('⏳ *Procesando...* Subiendo archivo a múltiples servicios. 🌸');
+    await reply('⏳ *Procesando...* Subiendo archivo a GitHub. 🌸');
 
     // Descargar imagen/video correctamente
     const buffer = await downloadMediaMessage(
@@ -58,12 +58,12 @@ export default async function(m, ctx) {
     const fileName = `banner_${Date.now()}.${ext}`;
     const fileType = msgType === 'videoMessage' ? 'video' : 'image';
 
-    console.log(`📤 Iniciando subida multi-servicio: ${fileName} (${fileType})`);
+    console.log(`📤 Iniciando subida a GitHub: ${fileName} (${fileType})`);
 
-    const url = await subirArchivoMultiServicio(buffer, fileName, fileType);
+    const url = await subirArchivoConGitHub(buffer, fileName, fileType);
     
     if (!url) {
-      return reply('❌ *Error:* No se pudo subir el archivo a ningún servicio. Intenta con:\n\n• Una imagen más pequeña (menos de 5MB)\n• Un formato diferente (JPG, PNG)\n• Vuelve a intentarlo en unos minutos\n\n🌸 Si el problema persiste, contacta al administrador.');
+      return reply('❌ *Error:* No se pudo subir el archivo a GitHub. Configura GITHUB_TOKEN en tu .env o intenta más tarde.');
     }
 
     console.log(`✅ URL obtenida: ${url}`);
@@ -82,6 +82,6 @@ export default async function(m, ctx) {
   } catch (e) {
     console.error('🚫 Error en setbanner:', e);
     const errorMsg = e.response?.data || e.message || 'Error desconocido';
-    await reply(`❌ *Error inesperado:* ${errorMsg}\n\n💡 *Solución:* Intenta con una imagen más pequeña o vuelve a intentarlo en unos minutos.`);
+    await reply(`❌ *Error inesperado:* ${errorMsg}\n\n💡 *Solución:* Verifica tu GITHUB_TOKEN o intenta más tarde.`);
   }
 }
