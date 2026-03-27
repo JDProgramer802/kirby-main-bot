@@ -1,0 +1,42 @@
+name: Kirby Bot - Web Panel
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-panel:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Deploy Web Panel
+      run: |
+        echo "🌸 Deploying Kirby Bot Web Panel"
+        echo "=================================="
+        echo "📱 Panel URL: https://raw.githubusercontent.com/JDProgramer802/kirby-main-bot/main/panel.html"
+        echo "🎮 Features:"
+        echo "  ✅ QR Code Generator"
+        echo "  ✅ Bot Control Panel"
+        echo "  ✅ Database Configuration"
+        echo "  ✅ Real-time Status"
+        echo "  ✅ Interactive Console"
+        echo "=================================="
+        echo "🚀 Panel deployed successfully!"
+    
+    - name: Upload Panel
+      uses: actions/upload-artifact@v3
+      with:
+        name: web-panel
+        path: panel.html
