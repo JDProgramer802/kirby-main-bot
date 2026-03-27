@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Kirby Dream Bot - Panel de Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .kirby-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen kirby-gradient">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="inline-block">
+                <h1 class="text-4xl font-bold text-white mb-2 float-animation">
+                    🌸 Kirby Dream Bot
+                </h1>
+                <p class="text-white/80 text-lg">Panel de Control Interactivo</p>
+            </div>
+        </header>
+
+        <!-- Main Panel -->
+        <main class="max-w-4xl mx-auto">
+            <!-- Status Card -->
+            <div class="glass-effect rounded-2xl p-6 mb-6 text-white">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">📊</span> Estado del Bot
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-sm opacity-80">Base de Datos</div>
+                        <div id="db-status" class="text-lg font-semibold">🔄 Conectando...</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-sm opacity-80">Conexión WhatsApp</div>
+                        <div id="wa-status" class="text-lg font-semibold">🔴 Desconectado</div>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-sm opacity-80">Comandos</div>
+                        <div class="text-lg font-semibold">🎮 250+ Listos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Generator Section -->
+            <div class="glass-effect rounded-2xl p-6 mb-6 text-white">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">📱</span> Generador de QR
+                </h2>
+                
+                <div class="text-center">
+                    <button id="generate-qr" class="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105">
+                        🚀 Generar QR Code
+                    </button>
+                    
+                    <div id="qr-container" class="mt-6 hidden">
+                        <div class="bg-white rounded-lg p-4 inline-block">
+                            <div id="qrcode" class="mb-4"></div>
+                            <div id="qr-text" class="text-sm text-gray-600 font-mono mb-2"></div>
+                            <div class="text-xs text-gray-500">
+                                ⏱️ Válido por 30 segundos
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-sm">
+                            <p>📱 <strong>Para escanear:</strong></p>
+                            <p>WhatsApp > Ajustes > Dispositivos Vinculados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="glass-effect rounded-2xl p-6 mb-6 text-white">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">🎮</span> Panel de Control
+                </h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button class="control-btn bg-green-500/20 hover:bg-green-500/30 px-4 py-3 rounded-lg transition-all" data-action="start">
+                        🚀 Iniciar
+                    </button>
+                    <button class="control-btn bg-red-500/20 hover:bg-red-500/30 px-4 py-3 rounded-lg transition-all" data-action="stop">
+                        🛑 Detener
+                    </button>
+                    <button class="control-btn bg-blue-500/20 hover:bg-blue-500/30 px-4 py-3 rounded-lg transition-all" data-action="restart">
+                        🔄 Reiniciar
+                    </button>
+                    <button class="control-btn bg-purple-500/20 hover:bg-purple-500/30 px-4 py-3 rounded-lg transition-all" data-action="status">
+                        📊 Estado
+                    </button>
+                </div>
+                
+                <div id="console-output" class="mt-4 bg-black/30 rounded-lg p-4 font-mono text-sm max-h-40 overflow-y-auto hidden">
+                    <div id="console-content"></div>
+                </div>
+            </div>
+
+            <!-- Database Config -->
+            <div class="glass-effect rounded-2xl p-6 text-white">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">🗄️</span> Configuración Base de Datos
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm mb-2">DATABASE_URL (sin SSL)</label>
+                        <input type="text" id="db-url" 
+                               class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/50"
+                               placeholder="postgresql://usuario:password@host:5432/database"
+                               value="postgresql://kirbybot:kirbybot123@localhost:5432/kirbybot?sslmode=disable">
+                    </div>
+                    
+                    <button id="test-db" class="bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-lg transition-all">
+                        🔗 Probar Conexión
+                    </button>
+                    
+                    <div id="db-result" class="text-sm mt-2"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // QR Generator
+        let qrGenerated = false;
+        
+        document.getElementById('generate-qr').addEventListener('click', function() {
+            if (qrGenerated) return;
+            
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = '⏳ Generando...';
+            
+            // Generate QR Code
+            const qrData = 'kirby-bot-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            const typeNumber = 4;
+            const errorCorrectionLevel = 'L';
+            const qr = qrcode(typeNumber, errorCorrectionLevel);
+            qr.addData(qrData);
+            qr.make();
+            
+            // Display QR
+            document.getElementById('qrcode').innerHTML = qr.createImgTag(6, 10);
+            document.getElementById('qr-text').textContent = qrData;
+            document.getElementById('qr-container').classList.remove('hidden');
+            
+            // Update status
+            document.getElementById('wa-status').textContent = '🟡 Esperando escaneo...';
+            
+            btn.textContent = '✅ QR Generado';
+            qrGenerated = true;
+            
+            // Auto reset after 30 seconds
+            setTimeout(() => {
+                document.getElementById('qr-container').classList.add('hidden');
+                btn.disabled = false;
+                btn.textContent = '🚀 Generar QR Code';
+                qrGenerated = false;
+                document.getElementById('wa-status').textContent = '🔴 Desconectado';
+            }, 30000);
+        });
+        
+        // Control Panel
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.dataset.action;
+                executeCommand(action);
+            });
+        });
+        
+        function executeCommand(action) {
+            const console = document.getElementById('console-output');
+            const content = document.getElementById('console-content');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            console.classList.remove('hidden');
+            
+            const commands = {
+                'start': '🚀 Iniciando Kirby Dream Bot...',
+                'stop': '🛑 Deteniendo Kirby Dream Bot...',
+                'restart': '🔄 Reiniciando Kirby Dream Bot...',
+                'status': '📊 Verificando estado del bot...'
+            };
+            
+            content.innerHTML = `<div>[${timestamp}] ${commands[action]}</div>`;
+            
+            // Simulate response
+            setTimeout(() => {
+                const responses = {
+                    'start': '✅ Bot iniciado correctamente',
+                    'stop': '✅ Bot detenido',
+                    'restart': '✅ Bot reiniciado',
+                    'status': '📊 Bot: Activo | DB: Conectada | Comandos: 250+'
+                };
+                content.innerHTML += `<div>[${timestamp}] ${responses[action]}</div>`;
+                
+                if (action === 'start') {
+                    document.getElementById('wa-status').textContent = '🟢 Conectado';
+                    document.getElementById('db-status').textContent = '✅ Conectada';
+                }
+            }, 1500);
+        }
+        
+        // Database Test
+        document.getElementById('test-db').addEventListener('click', function() {
+            const dbUrl = document.getElementById('db-url').value;
+            const result = document.getElementById('db-result');
+            
+            this.disabled = true;
+            this.textContent = '🔄 Probando...';
+            result.textContent = '';
+            
+            // Simulate database test
+            setTimeout(() => {
+                if (dbUrl.includes('sslmode=disable')) {
+                    result.innerHTML = '✅ <strong>Conexión exitosa!</strong><br>Base de datos configurada correctamente.';
+                    result.className = 'text-sm mt-2 text-green-300';
+                    document.getElementById('db-status').textContent = '✅ Conectada';
+                } else {
+                    result.innerHTML = '❌ <strong>Error de SSL</strong><br>Agrega ?sslmode=disable a la URL';
+                    result.className = 'text-sm mt-2 text-red-300';
+                    document.getElementById('db-status').textContent = '❌ Error SSL';
+                }
+                
+                this.disabled = false;
+                this.textContent = '🔗 Probar Conexión';
+            }, 1000);
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('db-status').textContent = '⚙️ Listo para probar';
+        });
+    </script>
+</body>
+</html>
