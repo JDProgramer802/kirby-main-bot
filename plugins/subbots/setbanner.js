@@ -5,7 +5,7 @@
 // @reaccion: 🌌
 
 import { downloadMediaMessage } from '@itsukichann/baileys';
-import { subirArchivoConGitHub } from '../../src/lib/github-storage.js';
+import { subirArchivoGitHub } from '../../src/lib/github-direct.js';
 import { query, setBotConfig } from '../../src/lib/database.js';
 
 export default async function(m, ctx) {
@@ -60,7 +60,7 @@ export default async function(m, ctx) {
 
     console.log(`📤 Iniciando subida a GitHub: ${fileName} (${fileType})`);
 
-    const url = await subirArchivoConGitHub(buffer, fileName, fileType);
+    const url = await subirArchivoGitHub(buffer, fileName, fileType);
     
     if (!url) {
       return reply('❌ *Error:* No se pudo subir el archivo a GitHub. Configura GITHUB_TOKEN en tu .env o intenta más tarde.');

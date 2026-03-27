@@ -1,0 +1,54 @@
+name: Kirby Bot - GitHub Native
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: kirbybot123
+          POSTGRES_DB: kirbybot
+          POSTGRES_USER: kirbybot
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Setup Database
+      run: |
+        PGPASSWORD=kirbybot123 psql -h localhost -U kirbybot -d kirbybot -f schema.sql
+      env:
+        PGPASSWORD: kirbybot123
+    
+    - name: Start Bot
+      run: |
+        export DATABASE_URL="postgresql://kirbybot:kirbybot123@localhost:5432/kirbybot"
+        export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        export BOT_NAME="Kirby Dream Bot"
+        export OWNER_NUMBER="38414791536710@lid"
+        npm start
+      env:
+        DATABASE_URL: postgresql://kirbybot:kirbybot123@localhost:5432/kirbybot
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
