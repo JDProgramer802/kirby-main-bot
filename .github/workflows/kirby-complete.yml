@@ -73,6 +73,14 @@ jobs:
       env:
         PGPASSWORD: kirbybot123
     
+    - name: Test Bot Functionality
+      run: |
+        echo "🧪 Testing bot functionality..."
+        npm test
+        npm run test:db
+        npm run test:core
+        echo "✅ All tests completed successfully!"
+    
     - name: Setup Directories
       run: |
         echo "📁 Creating directories..."
