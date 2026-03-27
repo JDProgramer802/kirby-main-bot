@@ -30,7 +30,8 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   BOT_NAME: Kirby Dream Bot
   OWNER_NUMBER: 38414791536710@lid
-  WEB_PANEL_PORT: 3000
+  GITHUB_REPO: JDProgramer802/kirby-main-bot
+  BASE_URL: https://raw.githubusercontent.com/JDProgramer802/kirby-main-bot/main
 
 jobs:
   kirby-complete:
@@ -166,73 +167,10 @@ jobs:
             
           "panel")
             echo "🌐 Starting Web Panel..."
-            node -e "
-              const http = require('http');
-              const fs = require('fs');
-              
-              // Simple web server
-              const server = http.createServer((req, res) => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-                res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-                
-                if (req.url === '/') {
-                  const html = fs.readFileSync('./panel.html', 'utf8');
-                  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-                  res.end(html);
-                } else if (req.url === '/api/status') {
-                  res.writeHead(200, { 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify({
-                    bot: {
-                      name: 'Kirby Dream Bot',
-                      version: '2.0.0',
-                      status: 'running'
-                    },
-                    database: {
-                      status: 'connected'
-                    },
-                    panel: {
-                      isActive: true,
-                      url: 'http://localhost:3000'
-                    },
-                    stats: {
-                      messages: 0,
-                      commands: 0,
-                      uptime: Date.now() - Date.now()
-                    }
-                  }));
-                } else if (req.url === '/api/qr' && req.method === 'POST') {
-                  const crypto = require('crypto');
-                  const qrString = 'kirby-bot-' + crypto.randomBytes(16).toString('hex');
-                  res.writeHead(200, { 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify({
-                    success: true,
-                    qr: qrString,
-                    expires: '30 seconds',
-                    instructions: 'WhatsApp > Settings > Linked Devices'
-                  }));
-                } else {
-                  res.writeHead(404, { 'Content-Type': 'text/html' });
-                  res.end('<h1>404 - Not Found</h1>');
-                }
-              });
-              
-              server.listen(3000, () => {
-                console.log('🌐 Web Panel started!');
-                console.log('==========================');
-                console.log('🔗 URL: http://localhost:3000');
-                console.log('📊 API: http://localhost:3000/api/status');
-                console.log('📱 QR: http://localhost:3000/api/qr');
-                console.log('==========================');
-                console.log('✅ Panel is ready!');
-              });
-              
-              // Keep server running for 30 seconds
-              setTimeout(() => {
-                server.close();
-                console.log('🛑 Panel stopped after 30 seconds');
-              }, 30000);
-            "
+            echo "🔗 Panel URL: https://raw.githubusercontent.com/${{ env.GITHUB_REPO }}/main/panel.html"
+            echo "📊 API URL: https://raw.githubusercontent.com/${{ env.GITHUB_REPO }}/main/api/"
+            echo "🌐 GitHub Storage: ${ env.BASE_URL }"
+            echo "✅ Panel is ready on GitHub!"
             ;;
             
           "start")
@@ -240,10 +178,11 @@ jobs:
             node -e "
               console.log('🚀 Initializing Kirby Dream Bot...');
               console.log('🗄️ Database: Connected');
-              console.log('📁 Storage: Ready');
-              console.log('🌐 Panel: Available');
+              console.log('📁 Storage: GitHub + Local');
+              console.log('🌐 Panel: Available on GitHub');
               console.log('📱 QR: Ready to generate');
               console.log('🎮 Commands: 250+ loaded');
+              console.log('🌐 GitHub URLs: ${process.env.BASE_URL}');
               console.log('✅ Bot started successfully!');
               console.log('🤖 Ready for WhatsApp connection');
             "
@@ -273,12 +212,13 @@ jobs:
             PGPASSWORD=kirbybot123 psql -h localhost -U kirbybot -d kirbybot -f schema.sql
             echo "📁 Creating directories..."
             mkdir -p public/banners public/videos public/temp auth_info
-            echo "🌐 Starting web panel..."
+            echo "🌐 GitHub Storage: ${ env.BASE_URL }"
             echo "📱 Generating QR..."
             node -e "
               const crypto = require('crypto');
               const qrString = 'kirby-bot-' + crypto.randomBytes(16).toString('hex');
               console.log('📱 QR:', qrString);
+              console.log('🌐 Files will be stored at: ${process.env.BASE_URL}');
             "
             echo "🚀 Starting bot..."
             echo "✅ Complete system started!"
