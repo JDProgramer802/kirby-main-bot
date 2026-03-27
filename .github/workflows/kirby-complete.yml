@@ -20,6 +20,7 @@ on:
         - database
         - full-start
         - full-stop
+        - link
       message:
         description: 'Optional message or parameter'
         required: false
@@ -222,6 +223,29 @@ jobs:
             "
             echo "🚀 Starting bot..."
             echo "✅ Complete system started!"
+            ;;
+            
+          "link")
+            echo "🔗 Generating WhatsApp Link URL..."
+            echo "=================================="
+            echo "🌐 Panel Web URL:"
+            echo "https://raw.githubusercontent.com/${{ env.GITHUB_REPO }}/main/panel.html"
+            echo ""
+            echo "📱 WhatsApp Link Instructions:"
+            echo "1. Abre WhatsApp en tu teléfono"
+            echo "2. Ve a: Ajustes > Dispositivos Vinculados"
+            echo "3. Selecciona 'Vincular dispositivo'"
+            echo "4. Escanea el QR que aparecerás al ejecutar 'qr'"
+            echo ""
+            echo "🎯 Para generar el QR ahora:"
+            echo "Ejecuta el comando 'qr' en este mismo workflow"
+            echo ""
+            echo "🌐 GitHub Storage URL:"
+            echo "${ env.BASE_URL }"
+            echo ""
+            echo "📱 Una vez escaneado, tu bot estará conectado y listo!"
+            echo "=================================="
+            echo "✅ Link information ready!"
             ;;
             
           "full-stop")
